@@ -22,16 +22,17 @@ const Home: NextPage = () => {
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
-      const candyMachine = await metaplex.candyMachines().findByAddress({address: new PublicKey("6nQ3xk9Rk37qKLxMyd7V3K71AJTh1Aq8Yv7cwgbDBcRF")}).run();
+      const candyMachine = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("6nQ3xk9Rk37qKLxMyd7V3K71AJTh1Aq8Yv7cwgbDBcRF")});
 
       console.log(candyMachine);
+      //return;
       
       if (event.defaultPrevented) return;
       if (!walletAdapter.connected || !candyMachine) return;
   
       try {
         setIsMinting(true);
-        const nft = await metaplex.candyMachines().mint({ candyMachine }).run();
+        const nft = await metaplex.candyMachinesV2().mint({ candyMachine });
   
         console.log(nft);
         router.push(`/newMint?mint=${nft.nft.address.toBase58()}`);
