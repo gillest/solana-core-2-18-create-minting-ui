@@ -22,7 +22,7 @@ const Home: NextPage = () => {
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
-      const candyMachine = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("6nQ3xk9Rk37qKLxMyd7V3K71AJTh1Aq8Yv7cwgbDBcRF")});
+      const candyMachine = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("7GnVvA2JQkfHosLACNTMQEXHuh9kp9MM9Npe1wrxgSdX")});
 
       console.log(candyMachine);
       //return;
