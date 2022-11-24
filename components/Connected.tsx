@@ -35,7 +35,7 @@ const Connected: FC = () => {
   
       try {
         setIsMinting(true);
-        const nft = await metaplex.candyMachinesV2().mint({ candyMachine });
+        const nft = await metaplex.candyMachinesV2().mint({ candyMachine });        
   
         router.push(`/?mint=${nft.nft.address.toBase58()}`);
       } catch (error) {
@@ -64,7 +64,7 @@ const Connected: FC = () => {
       } finally {
       }
     },
-    [metaplex, walletAdapter, candyMachine, router]
+    [walletAdapter, candyMachine]
   );  
 
   

@@ -11,8 +11,13 @@ import {
 import { ArrowForwardIcon } from "@chakra-ui/icons"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/router"
-import { Metaplex } from "@metaplex-foundation/js"
+import { Metaplex, Nft } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
+
+type MyNft = {
+  name: string,
+  image: string
+}
 
 const NewMint: FC = () => {
   const { connection } = useConnection()
@@ -21,30 +26,30 @@ const NewMint: FC = () => {
 
   const metaplex = Metaplex.make(connection)
 
-  const [mintedInfo, setMintedInfo] = useState<object>();
+  const [mintedInfo, setMintedInfo] = useState<MyNft>();
   const fetchNft = async () => {
     const mintedAddress = router.query.mint ?? null;
     if (mintedAddress == null) {
       return
     }
   
-    const nft = await metaplex.nfts().findByMint({ 
+    const nftPayload = await metaplex.nfts().findByMint({ 
       mintAddress:   new PublicKey(mintedAddress)
     })
 
-    console.log(nft)
-    console.log(typeof nft)
+    let fetchResult = await fetch(nftPayload.uri)
+    let json = await fetchResult.json()
 
-    if (nft) {
-      setMintedInfo(nft)
+    console.log(json);
+
+    if (json.symbol == "GALX") {
+      setMintedInfo(json)
     }
-
   }
 
   useEffect(() => {
     fetchNft()
-  }, [walletAdapter, mintedInfo])
-
+  }, [walletAdapter])
 
   return (
     <VStack spacing={20}>
@@ -70,7 +75,7 @@ const NewMint: FC = () => {
       </Container>
 
       <HStack spacing={10}>
-        {mintedInfo ? <Image src={mintedInfo.json.image} alt="" /> : ''}
+        {mintedInfo && mintedInfo.image ? <Image src={mintedInfo.image} alt="" /> : ''}
       </HStack>
 
       <Button bgColor="accent" color="white" maxW="380px">

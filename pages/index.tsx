@@ -12,23 +12,7 @@ import { Router, useRouter } from "next/router"
 import { CandyMachine, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
 import NewMint from "../components/NewMint"
-
-const CenterContent = ({connected}) => {
-  const router = useRouter()
-  const mintedAddress = router.query.mint ?? null;
-
-  if (mintedAddress) {
-    return (
-      <NewMint />
-    )
-  } else {
-    if (connected) {
-      return (<Connected />)
-    } else {
-      return (<Disconnected />)
-    }
-  }
-}
+import CenterContent from "../components/CenterContent"
 
 const Home: NextPage = () => {
   const { connected } = useWallet()
@@ -84,7 +68,7 @@ const Home: NextPage = () => {
           <Spacer />
 
           <Center>
-            <CenterContent connected={connected} />
+            <CenterContent />
           </Center>
 
           <Spacer />
@@ -98,7 +82,7 @@ const Home: NextPage = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                built with @_buildspace xxx
+                built with @_buildspace
               </a>
             </Box>
           </Center>
