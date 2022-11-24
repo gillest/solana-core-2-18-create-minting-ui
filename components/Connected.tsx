@@ -7,11 +7,12 @@ import {
   Text,
   VStack,
   Image,
+  Center,
 } from "@chakra-ui/react"
 import { ArrowForwardIcon } from "@chakra-ui/icons"
 import { useRouter } from "next/router"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
-import { CandyMachine, Metaplex } from "@metaplex-foundation/js"
+import { CandyMachine, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
 
 
@@ -19,12 +20,13 @@ const Connected: FC = () => {
   const router = useRouter()
   const walletAdapter = useWallet();
   const { connection } = useConnection();
-  const metaplex = Metaplex.make(connection)
+  const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
   const [isMinting, setIsMinting] = useState(false)
   const [candyMachine, setCandyMachine] = useState<CandyMachine>()
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
+      const candyMachine = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("7GnVvA2JQkfHosLACNTMQEXHuh9kp9MM9Npe1wrxgSdX")});
 
       console.log(candyMachine);
       
@@ -33,14 +35,33 @@ const Connected: FC = () => {
   
       try {
         setIsMinting(true);
-        const nft = await metaplex.candyMachines().mint({ candyMachine }).run();
+        const nft = await metaplex.candyMachinesV2().mint({ candyMachine });
   
-        console.log(nft);
-        router.push(`/newMint?mint=${nft.nft.address.toBase58()}`);
+        router.push(`/?mint=${nft.nft.address.toBase58()}`);
       } catch (error) {
+        console.log(error);
         alert(error);
       } finally {
         setIsMinting(false);
+      }
+    },
+    [metaplex, walletAdapter, router]
+  );  
+
+  const handleStakeClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+    async (event) => {
+
+      alert('Not implemented')
+
+      console.log(candyMachine);
+      
+      if (event.defaultPrevented) return;
+      if (!walletAdapter.connected || !candyMachine) return;
+  
+      try {
+      } catch (error) {
+        alert(error);
+      } finally {
       }
     },
     [metaplex, walletAdapter, candyMachine, router]
@@ -79,11 +100,34 @@ const Connected: FC = () => {
       </HStack>
 
       <Button bgColor="accent" color="white" maxW="380px">
-        <HStack>
-          <Text>mint buildoor</Text>
-          <ArrowForwardIcon />
-        </HStack>
+      <Button
+          bgColor="accent"
+          color="white"
+          maxWidth="380px"
+          onClick={handleClick}
+        >
+          <HStack>
+            <Text>mint buildoor</Text>
+            <ArrowForwardIcon />
+          </HStack>
+        </Button>
       </Button>
+
+      <Center>
+        <Button
+          bgColor="accent"
+          color="white"
+          maxWidth="380px"
+          onClick={handleStakeClick}
+        >
+          <HStack>
+            <Text>stake my buildoor</Text>
+            <ArrowForwardIcon />
+          </HStack>
+        </Button>
+      </Center>
+
+
     </VStack>
   )
 }

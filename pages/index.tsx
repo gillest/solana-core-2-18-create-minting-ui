@@ -6,11 +6,29 @@ import Disconnected from "../components/Disconnected"
 import NavBar from "../components/NavBar"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import Connected from "../components/Connected"
-import { MouseEventHandler, useCallback, useState } from "react"
+import React, { MouseEventHandler, useCallback, useEffect, useState } from "react"
 import { ArrowForwardIcon } from "@chakra-ui/icons"
 import { Router, useRouter } from "next/router"
 import { CandyMachine, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
+import NewMint from "../components/NewMint"
+
+const CenterContent = ({connected}) => {
+  const router = useRouter()
+  const mintedAddress = router.query.mint ?? null;
+
+  if (mintedAddress) {
+    return (
+      <NewMint />
+    )
+  } else {
+    if (connected) {
+      return (<Connected />)
+    } else {
+      return (<Disconnected />)
+    }
+  }
+}
 
 const Home: NextPage = () => {
   const { connected } = useWallet()
@@ -34,8 +52,8 @@ const Home: NextPage = () => {
         setIsMinting(true);
         const nft = await metaplex.candyMachinesV2().mint({ candyMachine });
   
-        console.log(nft);
-        router.push(`/newMint?mint=${nft.nft.address.toBase58()}`);
+        //console.log(nft);
+        router.push(`/?mint=${nft.nft.address.toBase58()}`);
       } catch (error) {
         console.log(error);
         alert(error);
@@ -50,7 +68,7 @@ const Home: NextPage = () => {
     <div className={styles.container}>
       <Head>
         <title>Buildoors</title>
-        <meta name="The NFT Collection for Buildoors" />
+        <meta name="The NFT Collection for CCC" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -64,22 +82,9 @@ const Home: NextPage = () => {
           <NavBar />
 
           <Spacer />
-          <Center>
-            {connected ? <Connected /> : <Disconnected />}
-          </Center>
 
           <Center>
-            <Button
-              bgColor="accent"
-              color="white"
-              maxWidth="380px"
-              onClick={handleClick}
-            >
-              <HStack>
-                <Text>stake my buildoor</Text>
-                <ArrowForwardIcon />
-              </HStack>
-            </Button>
+            <CenterContent connected={connected} />
           </Center>
 
           <Spacer />
