@@ -16,8 +16,8 @@ import { CandyMachine, CandyMachineV2, Metaplex, walletAdapterIdentity } from "@
 import { PublicKey } from "@solana/web3.js"
 
 interface MyNftInterface {
-  name: string,
-  image: string
+  name: string;
+  image: string;
 }
 
 const Connected: FC = () => {

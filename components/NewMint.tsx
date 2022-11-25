@@ -14,9 +14,9 @@ import { useRouter } from "next/router"
 import { Metaplex, Nft } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
 
-type MyNft = {
-  name: string,
-  image: string
+interface MyNft {
+  name: string;
+  image: string;
 }
 
 const NewMint: FC = () => {

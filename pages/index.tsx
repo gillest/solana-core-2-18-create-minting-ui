@@ -6,7 +6,7 @@ import Disconnected from "../components/Disconnected"
 import NavBar from "../components/NavBar"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import Connected from "../components/Connected"
-import React, { MouseEventHandler, useCallback, useEffect, useState } from "react"
+import React, { MouseEventHandler, useCallback, useEffect, useMemo, useState } from "react"
 import { ArrowForwardIcon } from "@chakra-ui/icons"
 import { Router, useRouter } from "next/router"
 import { CandyMachine, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
@@ -19,7 +19,11 @@ const Home: NextPage = () => {
   const router = useRouter()
   const walletAdapter = useWallet();
   const { connection } = useConnection();
-  const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
+  //const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
+  const metaplex = useMemo(() => {
+    return Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
+  }, [connection, walletAdapter])
+
   const [isMinting, setIsMinting] = useState(false)
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
