@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler, useCallback, useMemo, useState } from "react"
+import { FC, MouseEventHandler, useCallback, useEffect, useMemo, useState } from "react"
 import {
   Button,
   Container,
@@ -12,9 +12,13 @@ import {
 import { ArrowForwardIcon } from "@chakra-ui/icons"
 import { useRouter } from "next/router"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
-import { CandyMachine, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
+import { CandyMachine, CandyMachineV2, Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { PublicKey } from "@solana/web3.js"
 
+interface MyNftInterface {
+  name: string,
+  image: string
+}
 
 const Connected: FC = () => {
   const router = useRouter()
@@ -22,8 +26,38 @@ const Connected: FC = () => {
   const { connection } = useConnection();
   const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter))
   const [isMinting, setIsMinting] = useState(false)
-  const [candyMachine, setCandyMachine] = useState<CandyMachine>()
+  const [candyMachine, setCandyMachine] = useState<CandyMachineV2>()
+  const [nftData, setNftData] = useState<MyNftInterface[]>()
 
+  const fetchNfts = async () => {
+    if (!walletAdapter.connected || !walletAdapter.publicKey) {
+      return;
+    }
+    
+    const cm = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("7GnVvA2JQkfHosLACNTMQEXHuh9kp9MM9Npe1wrxgSdX")})
+
+    if (!cm) {
+      return;
+    }
+    setCandyMachine(cm);
+
+    console.log(candyMachine)
+    // fetch off chain metadata for each NFT
+    let nftData = []
+    for (let i = 0; i < cm.items.length; i++) {
+      let fetchResult = await fetch(cm.items[i].uri)
+      let json = await fetchResult.json()
+
+      if (json.symbol == "GALX") {
+        nftData.push(json)
+        console.log(json)
+      }
+    }
+
+    // set state
+    setNftData(nftData)
+  }
+  
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
       const candyMachine = await metaplex.candyMachinesV2().findByAddress({address: new PublicKey("7GnVvA2JQkfHosLACNTMQEXHuh9kp9MM9Npe1wrxgSdX")});
@@ -52,22 +86,13 @@ const Connected: FC = () => {
     async (event) => {
 
       alert('Not implemented')
-
-      console.log(candyMachine);
-      
-      if (event.defaultPrevented) return;
-      if (!walletAdapter.connected || !candyMachine) return;
-  
-      try {
-      } catch (error) {
-        alert(error);
-      } finally {
-      }
     },
     [walletAdapter, candyMachine]
   );  
 
-  
+  useEffect(() => {
+    fetchNfts()
+  }, [walletAdapter, connection])
 
   return (
     <VStack spacing={20}>
@@ -80,37 +105,34 @@ const Connected: FC = () => {
             noOfLines={1}
             textAlign="center"
           >
-            Welcome Buildoor.
+            Dear Galaxy maker
           </Heading>
 
           <Text color="bodyText" fontSize="xl" textAlign="center">
-            Each buildoor is randomly generated and can be staked to receive
-            <Text as="b"> $BLD</Text> Use your <Text as="b"> $BLD</Text> to
-            upgrade your buildoor and receive perks within the community!
+            Each GLX is randomly generated and can be staked to receive
+            <Text as="b"> $CCC</Text> Use your <Text as="b"> $CCC</Text> to
+            upgrade your galaxy and receive perks within the community!
           </Text>
         </VStack>
       </Container>
 
       <HStack spacing={10}>
-        <Image src="avatar1.png" alt="" />
-        <Image src="avatar2.png" alt="" />
-        <Image src="avatar3.png" alt="" />
-        <Image src="avatar4.png" alt="" />
-        <Image src="avatar5.png" alt="" />
+        {nftData && nftData.map((nft) => (
+          <Image key={nft.name} src={nft.image} alt={nft.name} width="100" height="100" />
+        ))}
       </HStack>
 
-      <Button bgColor="accent" color="white" maxW="380px">
       <Button
           bgColor="accent"
           color="white"
           maxWidth="380px"
           onClick={handleClick}
+          disabled={isMinting}
         >
           <HStack>
-            <Text>mint buildoor</Text>
+            <Text>{!isMinting ? 'mint galaxy' : 'wait a bit...'}</Text>
             <ArrowForwardIcon />
           </HStack>
-        </Button>
       </Button>
 
       <Center>
@@ -121,7 +143,7 @@ const Connected: FC = () => {
           onClick={handleStakeClick}
         >
           <HStack>
-            <Text>stake my buildoor</Text>
+            <Text>stake my GLX</Text>
             <ArrowForwardIcon />
           </HStack>
         </Button>
